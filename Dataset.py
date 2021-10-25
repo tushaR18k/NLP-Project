@@ -102,12 +102,14 @@ class MAMIDataset(Dataset):
     def __getitem__(self, i):
         single_image_name = self.image_arr[i]
         img_as_img = Image.open(os.path.join(self.path_to_dataset, single_image_name))
+        
         img_as_tensor = self.to_tensor(img_as_img)
+        img_as_tensor = transforms.CenterCrop((112,112))(img_as_tensor)
         return (
             img_as_tensor,
-            self.sequences[i],
-            self.bow_vector[i],
-            self.tfidf_vector[i],
+            torch.Tensor(self.sequences[i]),
+            torch.Tensor(self.bow_vector[i]),
+            torch.Tensor(self.tfidf_vector[i]),
             self.label_arr[i],
             self.text[i],
             single_image_name
@@ -115,10 +117,10 @@ class MAMIDataset(Dataset):
 
                  
 def collate(batch):
-    img = [item[0] for item in batch]
+    img = torch.stack([item[0] for item in batch], dim=0)
     seq = [item[1] for item in batch]
-    bow = [item[2] for item in batch]
-    tfidf = [item[3] for item in batch]
+    bow = torch.stack([item[2] for item in batch], dim=0)
+    tfidf = torch.stack([item[3] for item in batch], dim=0)
     target = torch.LongTensor([item[4] for item in batch])
     text = [item[5] for item in batch]
     img_ids = [item[6] for item in batch]
