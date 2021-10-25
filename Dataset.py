@@ -20,11 +20,11 @@ from sklearn.feature_extraction.text import TfidfVectorizer # TF-IDF
 from utils import *
 from params import *
 class MAMIDataset(Dataset):
-    def __init__(self,max_len,max_vocab,transform_apply=False, path_to_dataset='./Data/TRAINING'):
+    def __init__(self,max_len,max_vocab,transform_apply=False, path_to_dataset='./Data/TRAINING', split='training'):
         self.path_to_dataset=path_to_dataset
 
         self.to_tensor = transforms.ToTensor()
-        df = data = pd.read_csv(os.path.join(path_to_dataset,'training.csv'),sep="\t")
+        df = data = pd.read_csv(os.path.join(path_to_dataset,f'{split}_split.csv'),sep="\t")
         self.image_arr = np.asarray(data.iloc[:, 0]).tolist()
         self.label_arr = np.asarray(data.iloc[:, 1:6]).tolist()
         self.text =  np.asarray(data.iloc[:, 6]).tolist()
