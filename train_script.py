@@ -17,9 +17,9 @@ os.makedirs(f'results/{exp_name}', exist_ok=True)
 def train_epoch(dataloader, model, optimizer, scheduler, epoch):
     try:
         pb=tqdm(dataloader)
-        acc_loss=1
+        acc_loss=0
         accuracy_list=[]
-        count=0
+        count=1
         for img,seq,bow,tfidf,target,text,img_id in pb:
             bow=bow.to(device)
             target=target.to(device)
@@ -54,9 +54,9 @@ val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, collate_fn=collate)
 #pdb.set_trace()
 
 # initialize model and optimizers
-model=LogisticRegression(in_dim=train_dataset[0][2].shape[-1], out_dim=5)
+model=LogisticRegression(in_dim=train_dataset[0][2].shape[-1], out_dim=1)
 model.to(device)
-optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9, nesterov=True)
+optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9, nesterov=True)
 scheduler=ReduceLROnPlateau(optimizer, 'min')
 
 # train and save model

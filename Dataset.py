@@ -113,7 +113,7 @@ class MAMIDataset(Dataset):
                 torch.Tensor(self.sequences[i]),
                 torch.Tensor(self.bow_vector[i]),
                 torch.Tensor(self.tfidf_vector[i]),
-                self.label_arr[i],
+                [self.label_arr[i][0]], #only misogyny 
                 self.text[i],
                 single_image_name
             )
