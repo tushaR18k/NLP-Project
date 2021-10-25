@@ -1,0 +1,27 @@
+name: reu
+channels:
+  - defaults
+dependencies:
+  - python=3.6
+  - keras
+  - tensorflow
+  - nomkl
+  - matplotlib
+  - scipy
+  - pandas
+  - numpy
+  - ipykernel
+  - jupyter
+  - opencv
+  - pillow
+  - faiss-cpu
+  - scikit-learn
+  - tqdm
+  - regex
+  - requests
+  - dill
+  - nltk
+  - xlrd
+  - jupyterlab
+prefix: /Users/arushirai/opt/anaconda3/envs/reu
+
