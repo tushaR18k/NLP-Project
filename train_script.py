@@ -15,26 +15,29 @@ exp_name='log_res'
 os.makedirs(f'results/{exp_name}', exist_ok=True)
 
 def train_epoch(dataloader, model, optimizer, scheduler, epoch):
-    pb=tqdm(dataloader)
-    acc_loss=1
-    accuracy_list=[]
-    count=0
-    for img,seq,bow,tfidf,target,text,img_id in pb:
-        bow=bow.to(device)
-        target=target.to(device)
-        outputs=model(bow)
-        #pdb.set_trace()
-        loss=model.calculate_loss(outputs, target)
-        loss.backward()
-        acc_loss+=loss
-        
-        #batch_top1 = accuracy(outputs, target, topk=[1])[0]
-        #accuracy_list.append(batch_top1)
-        scheduler.step(loss)
-        optimizer.step()
-        model.zero_grad()
-        pb.set_description(f'Loss: {acc_loss/count}')
-        count+=1
+    try:
+        pb=tqdm(dataloader)
+        acc_loss=1
+        accuracy_list=[]
+        count=0
+        for img,seq,bow,tfidf,target,text,img_id in pb:
+            bow=bow.to(device)
+            target=target.to(device)
+            outputs=model(bow)
+            #pdb.set_trace()
+            loss=model.calculate_loss(outputs, target)
+            loss.backward()
+            acc_loss+=loss
+
+            #batch_top1 = accuracy(outputs, target, topk=[1])[0]
+            #accuracy_list.append(batch_top1)
+            scheduler.step(loss)
+            optimizer.step()
+            model.zero_grad()
+            pb.set_description(f'Loss: {acc_loss/count}')
+            count+=1
+    except Exception as e:
+        pdb.set_trace()
         
     torch.save({'model_state':model.state_dict(),
                 'optim_state':optimizer.state_dict(),

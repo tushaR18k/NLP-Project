@@ -103,11 +103,11 @@ class MAMIDataset(Dataset):
         try:
             single_image_name = self.image_arr[i] #TODO: need to edit
             img_as_img = Image.open(os.path.join(self.path_to_dataset, single_image_name))
-
+            img_as_img = transforms.Resize((112,112))(img_as_img)
             img_as_tensor = self.to_tensor(img_as_img)
             if img_as_tensor.shape[0] == 1:
                 img_as_tensor=einops.repeat(img_as_tensor, 'c h w -> (repeat c) h w', repeat=3)
-            img_as_tensor = transforms.CenterCrop((112,112))(img_as_tensor)
+            
             return (
                 img_as_tensor,
                 torch.Tensor(self.sequences[i]),
