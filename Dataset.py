@@ -16,7 +16,7 @@ from functools import partial
 from tqdm.notebook import tqdm
 tqdm.pandas()
 from sklearn.feature_extraction.text import TfidfVectorizer # TF-IDF
-
+import einops
 from utils import *
 from params import *
 class MAMIDataset(Dataset):
@@ -97,23 +97,28 @@ class MAMIDataset(Dataset):
         #print(self.tfidf_vector[:5])
 
     def __len__(self):
-        return len(self.image_arr)
+        return len(self.sequences)
 
     def __getitem__(self, i):
-        single_image_name = self.image_arr[i]
-        img_as_img = Image.open(os.path.join(self.path_to_dataset, single_image_name))
-        
-        img_as_tensor = self.to_tensor(img_as_img)
-        img_as_tensor = transforms.CenterCrop((112,112))(img_as_tensor)
-        return (
-            img_as_tensor,
-            torch.Tensor(self.sequences[i]),
-            torch.Tensor(self.bow_vector[i]),
-            torch.Tensor(self.tfidf_vector[i]),
-            self.label_arr[i],
-            self.text[i],
-            single_image_name
-        )
+        try:
+            single_image_name = self.image_arr[i] #TODO: need to edit
+            img_as_img = Image.open(os.path.join(self.path_to_dataset, single_image_name))
+
+            img_as_tensor = self.to_tensor(img_as_img)
+            if img_as_tensor.shape[0] == 1:
+                img_as_tensor=einops.repeat(img_as_tensor, 'c h w -> (repeat c) h w', repeat=3)
+            img_as_tensor = transforms.CenterCrop((112,112))(img_as_tensor)
+            return (
+                img_as_tensor,
+                torch.Tensor(self.sequences[i]),
+                torch.Tensor(self.bow_vector[i]),
+                torch.Tensor(self.tfidf_vector[i]),
+                self.label_arr[i],
+                self.text[i],
+                single_image_name
+            )
+        except Exception as e:
+            pdb.set_trace()
 
                  
 def collate(batch):
@@ -121,7 +126,7 @@ def collate(batch):
     seq = [item[1] for item in batch]
     bow = torch.stack([item[2] for item in batch], dim=0)
     tfidf = torch.stack([item[3] for item in batch], dim=0)
-    target = torch.LongTensor([item[4] for item in batch])
+    target = torch.stack([torch.FloatTensor(item[4]) for item in batch], dim=0)
     text = [item[5] for item in batch]
     img_ids = [item[6] for item in batch]
 

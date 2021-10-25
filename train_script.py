@@ -23,13 +23,14 @@ def train_epoch(dataloader, model, optimizer, scheduler, epoch):
         bow=bow.to(device)
         target=target.to(device)
         outputs=model(bow)
+        #pdb.set_trace()
         loss=model.calculate_loss(outputs, target)
         loss.backward()
         acc_loss+=loss
         
-        batch_top1 = accuracy(outputs, target, topk=[1])[0]
-        accuracy_list.append(batch_top1)
-        scheduler.step()
+        #batch_top1 = accuracy(outputs, target, topk=[1])[0]
+        #accuracy_list.append(batch_top1)
+        scheduler.step(loss)
         optimizer.step()
         model.zero_grad()
         pb.set_description(f'Loss: {acc_loss/count}')
@@ -38,19 +39,19 @@ def train_epoch(dataloader, model, optimizer, scheduler, epoch):
     torch.save({'model_state':model.state_dict(),
                 'optim_state':optimizer.state_dict(),
                 'scheduler_state':scheduler.state_dict()}, f'results/{exp_name}/checkpoint.pth')
-    return acc_loss/len(dataloader), sum(accuracy_list)/len(accuracy_list)
+    return acc_loss/len(dataloader)#, sum(accuracy_list)/len(accuracy_list)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # initialize datasets
 train_dataset = MAMIDataset(MAX_LEN,MAX_VOCAB, split='train')
 val_dataset = MAMIDataset(MAX_LEN,MAX_VOCAB, split='val')
-train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, collate_fn=collate, shuffle=True)
+train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, collate_fn=collate, shuffle=True, num_workers=4)
 val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, collate_fn=collate)
 #pdb.set_trace()
 
 # initialize model and optimizers
-model=LogisticRegression(in_dim=train_dataset[0][2].shape[-1], out_dim=1)
+model=LogisticRegression(in_dim=train_dataset[0][2].shape[-1], out_dim=5)
 model.to(device)
 optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9, nesterov=True)
 scheduler=ReduceLROnPlateau(optimizer, 'min')
