@@ -26,7 +26,6 @@ class MAMIDataset(Dataset):
         self.to_tensor = transforms.ToTensor()
         df = data = pd.read_csv(os.path.join(path_to_dataset,f'{split}_split.csv'),sep="\t")
         self.image_arr = np.asarray(data.iloc[:, 0]).tolist()
-        self.label_arr = np.asarray(data.iloc[:, 1:6]).tolist()
         self.text =  np.asarray(data.iloc[:, 6]).tolist()
         stop_words = set(stopwords.words('english'))
         lemmatizer = WordNetLemmatizer()
@@ -93,6 +92,7 @@ class MAMIDataset(Dataset):
         self.sequences = df.indexed_tokens.tolist()
         self.bow_vector = df.bow_vector.tolist()
         self.tfidf_vector = df.tfidf_vector.tolist()
+        self.label_arr = np.asarray(df.iloc[:, 1:6]).tolist()
         #self.targets = df.label.tolist()
         #print(self.tfidf_vector[:5])
 
