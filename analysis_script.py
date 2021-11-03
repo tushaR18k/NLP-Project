@@ -70,14 +70,18 @@ class TextDataset:
         obj=namedtuple(typename='test', field_names=['index', 'values'])
         counter_all_entities=zip(*Counter(all_entities).most_common())
         obj.index, obj.values = (next(counter_all_entities), next(counter_all_entities))
-        plt=plot_histogram(obj, x_label='Entities', y_label='Count', bar_chart=True)
+        # normalize counts
+        total = sum(Counter(all_entities).values(), 0.0)
+        breakpoint()
+        obj.values=[val/total for val in obj.values]
+        plt=plot_histogram(obj, x_label='Entities', y_label='Percent Over all Mentions', bar_chart=True)
         plt.xticks(rotation = 45) # Rotates X-Axis Ticks by 45-degrees
 
         os.makedirs(os.path.join('visualizations', self.dataset_name), exist_ok=True)
         plt.savefig(os.path.join('visualizations', self.dataset_name, 'ner_count.png'))
         plt.close()
         
-        return Counter(all_np).most_common(20), Counter(all_vp).most_common(20), counter_all_entities.most_common(20)
+        return Counter(all_np).most_common(20), Counter(all_vp).most_common(20), Counter(all_entities).most_common(20)
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='')
@@ -97,4 +101,8 @@ if __name__ == "__main__":
     dataset.get_pos_hist(args)
     
         #todo add normalization
-    print("Nouns, Verbs, Entities Counts: \n", dataset.get_ner_hist(args))
+    np, vp, ent_a = dataset.get_ner_hist(args)
+    print("Nouns, Verbs, Entities Counts: \n" )
+    print("NP\n", np)
+    print("VP\n", vp)
+    print("Entities\n", ent_a)

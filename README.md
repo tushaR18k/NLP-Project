@@ -3,7 +3,7 @@
 2) The run analysis_script using the following arguments: ```python analysis_script.py --dataset mami --data_path ./Data/TRAINING/training.csv```
 3) Be sure to grab any visualizations in the visualizations folder
 
-* if you want to do analysis on a different dataset add code under an additional if statement whereever there is 'if self.dataset_name'
+* if you want to do analysis on a different dataset add code under an additional if statement whereever there is 'if self.dataset_name' and make sure the text is tokenized for self.df['text']. See how its done for mami as reference.
 * for the bar chart I take only the top ten {x-axis unit} but you should change this if you want more 
 # For training
 
