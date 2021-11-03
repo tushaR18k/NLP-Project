@@ -6,6 +6,7 @@ from nltk.corpus import stopwords
 from nltk.tokenize import wordpunct_tokenize
 from nltk.stem import WordNetLemmatizer
 from sklearn import feature_extraction, preprocessing
+from pdb import set_trace as breakpoint
 
 import pandas as pd
 import re
@@ -33,11 +34,11 @@ def vectorize(df):
 def plot_histogram(pd_series, bins='auto', x_label='Sentence Length Counts', y_label='Frequency', bar_chart=False):
     # code modified from https://realpython.com/python-histograms/
     import matplotlib.pyplot as plt
-
+    plt.clf()
     title = f'{y_label} of {x_label}'
-    print(pd_series.values)
     if bar_chart:
-        pd_series.plot(kind='bar',color='#607c8e')
+        #breakpoint()
+        plt.bar(pd_series.index[:10], pd_series.values[:10], color='#607c8e') # take first ten
     else:
         pd_series.plot.hist(grid=True, bins=bins, rwidth=0.9,
                    color='#607c8e')

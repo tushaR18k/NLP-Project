@@ -6,6 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from collections import Counter
 import os
+from pdb import set_trace as breakpoint
 #from matplotlib.
 class TextDataset:
     def __init__(self, path_to_data, dataset_name):
@@ -26,13 +27,19 @@ class TextDataset:
             df['text']=df['Text Transcription'].apply(lambda x : wordpunct_tokenize(x))
             return df
         return None
+    def get_ner_hist(self, args):
+        doc = nlp("This is a sentence.")
+        ner = nlp.add_pipe("ner")
+        # This usually happens under the hood
+        processed = ner(doc)
+        return None
     def get_pos_hist(self, args):
         # save histogram under visualizations folder
         plt=plot_histogram(self.mean_pos.sort_values(ascending=False), bins=self.mean_pos.sort_values(ascending=False).index, x_label='Part of speech', y_label='Frequency per Sentence', bar_chart=True)
-        
         os.makedirs(os.path.join('visualizations', self.dataset_name), exist_ok=True)
         plt.savefig(os.path.join('visualizations', self.dataset_name, 'pos.png'))
-        
+        plt.close()
+
     def get_average_sentence_length(self, args):
         # save histogram under visualizations folder
         self.df['sentence_counts'] = self.df['text'].apply(lambda x : len(x))
@@ -40,6 +47,7 @@ class TextDataset:
         
         os.makedirs(os.path.join('visualizations', self.dataset_name), exist_ok=True)
         plt.savefig(os.path.join('visualizations', self.dataset_name, 'sentence_count.png'))
+        plt.close()
         # return mean
         return self.df['sentence_counts'].mean()
     
@@ -57,6 +65,5 @@ if __name__ == "__main__":
     
     # get average sentence length
     print("Average sentence length: ", dataset.get_average_sentence_length(args))
-    print("Average parts of speech per meme: ", dataset.mean_pos)
-    print("Average parts of speech per meme: ", dataset.mean_pos.sort_values(ascending=False))
+    print("Average parts of speech per meme text: ", dataset.mean_pos.sort_values(ascending=False))
     dataset.get_pos_hist(args)
