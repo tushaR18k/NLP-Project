@@ -25,5 +25,5 @@ model.load_state_dict(torch.load(path_to_model)['model_state'])
 predicted_labels=[round(i.detach().numpy()[0]) for i in nn.Sigmoid()(model(torch.Tensor(val_dataset.bow_vector)))]
 ground_truth_labels=torch.Tensor([labels[0] for labels in val_dataset.label_arr])
 
-from sklearn.metrics import f1_score
-print(f1_score(ground_truth_labels, predicted_labels))
+from sklearn.metrics import f1_score,accuracy_score
+print(accuracy_score(ground_truth_labels, predicted_labels))
