@@ -68,9 +68,11 @@ class TextDataset:
             all_vp.extend(vp)
             all_entities.extend(ner)
         obj=namedtuple(typename='test', field_names=['index', 'values'])
-        counter_all_entities=Counter(all_entities)
+        counter_all_entities=Counter(all_entities).most_common()
         obj.index, obj.values = (list(counter_all_entities.keys()), list(counter_all_entities.values()))
         plt=plot_histogram(obj, x_label='Entities', y_label='Count', bar_chart=True)
+        plt.xticks(rotation = 45) # Rotates X-Axis Ticks by 45-degrees
+
         os.makedirs(os.path.join('visualizations', self.dataset_name), exist_ok=True)
         plt.savefig(os.path.join('visualizations', self.dataset_name, 'ner_count.png'))
         plt.close()
