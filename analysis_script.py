@@ -68,8 +68,8 @@ class TextDataset:
             all_vp.extend(vp)
             all_entities.extend(ner)
         obj=namedtuple(typename='test', field_names=['index', 'values'])
-        counter_all_entities=Counter(all_entities).most_common()
-        obj.index, obj.values = (list(counter_all_entities.keys()), list(counter_all_entities.values()))
+        counter_all_entities=zip(*Counter(all_entities).most_common())
+        obj.index, obj.values = (next(counter_all_entities), next(counter_all_entities))
         plt=plot_histogram(obj, x_label='Entities', y_label='Count', bar_chart=True)
         plt.xticks(rotation = 45) # Rotates X-Axis Ticks by 45-degrees
 
