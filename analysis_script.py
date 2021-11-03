@@ -4,9 +4,10 @@ from nltk.tokenize import wordpunct_tokenize
 from utils import get_part_of_speech, vectorize, plot_histogram
 import pandas as pd
 import matplotlib.pyplot as plt
-from collections import Counter
+from collections import Counter, namedtuple
 import os
 from pdb import set_trace as breakpoint
+import spacy
 #from matplotlib.
 class TextDataset:
     def __init__(self, path_to_data, dataset_name):
@@ -27,12 +28,7 @@ class TextDataset:
             df['text']=df['Text Transcription'].apply(lambda x : wordpunct_tokenize(x))
             return df
         return None
-    def get_ner_hist(self, args):
-        doc = nlp("This is a sentence.")
-        ner = nlp.add_pipe("ner")
-        # This usually happens under the hood
-        processed = ner(doc)
-        return None
+    
     def get_pos_hist(self, args):
         # save histogram under visualizations folder
         plt=plot_histogram(self.mean_pos.sort_values(ascending=False), bins=self.mean_pos.sort_values(ascending=False).index, x_label='Part of speech', y_label='Frequency per Sentence', bar_chart=True)
@@ -51,6 +47,35 @@ class TextDataset:
         # return mean
         return self.df['sentence_counts'].mean()
     
+    def get_ner_hist(self, args):
+        nlp = spacy.load("en_core_web_sm")
+        def get_ner(x):
+            doc = nlp(' '.join(x))
+            nouns = [chunk.text for chunk in doc.noun_chunks]
+            verbs = [token.lemma_ for token in doc if token.pos_ == "VERB"]
+            all_entities=[]
+            for entity in doc.ents:
+                all_entities.append(entity.label_)
+            return nouns, verbs, all_entities
+        self.df['noun_phrases'], self.df['verb_phrases'], self.df['ner']=zip(*self.df['text'].apply(lambda x: get_ner(x)))
+
+        # get counts
+        all_entities=[]
+        all_np = []
+        all_vp = []
+        for np, vp, ner in zip(self.df['noun_phrases'].values, self.df['verb_phrases'].values, self.df['ner'].values):
+            all_np.extend(np)
+            all_vp.extend(vp)
+            all_entities.extend(ner)
+        obj=namedtuple(typename='test', field_names=['index', 'values'])
+        counter_all_entities=Counter(all_entities)
+        obj.index, obj.values = (list(counter_all_entities.keys()), list(counter_all_entities.values()))
+        plt=plot_histogram(obj, x_label='Entities', y_label='Count', bar_chart=True)
+        os.makedirs(os.path.join('visualizations', self.dataset_name), exist_ok=True)
+        plt.savefig(os.path.join('visualizations', self.dataset_name, 'ner_count.png'))
+        plt.close()
+        
+        return Counter(all_np).most_common(20), Counter(all_vp).most_common(20), counter_all_entities.most_common(20)
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='')
@@ -65,5 +90,9 @@ if __name__ == "__main__":
     
     # get average sentence length
     print("Average sentence length: ", dataset.get_average_sentence_length(args))
+    
     print("Average parts of speech per meme text: ", dataset.mean_pos.sort_values(ascending=False))
     dataset.get_pos_hist(args)
+    
+        #todo add normalization
+    print("Nouns, Verbs, Entities Counts: \n", dataset.get_ner_hist(args))
