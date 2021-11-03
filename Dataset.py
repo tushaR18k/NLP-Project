@@ -26,8 +26,7 @@ class MAMIDataset(Dataset):
         self.to_tensor = transforms.ToTensor()
         df = data = pd.read_csv(os.path.join(path_to_dataset,f'{split}_split.csv'),sep="\t")
         self.image_arr = np.asarray(data.iloc[:, 0]).tolist()
-        self.text =  np.asarray(data.iloc[:, 6]).tolist()
-        stop_words = set(stopwords.words('english'))
+        self.stop_words = stop_words = set(stopwords.words('english'))
         lemmatizer = WordNetLemmatizer()
         df['tokens'] = df['Text Transcription'].apply(
             partial(
@@ -93,6 +92,8 @@ class MAMIDataset(Dataset):
         self.bow_vector = df.bow_vector.tolist()
         self.tfidf_vector = df.tfidf_vector.tolist()
         self.label_arr = np.asarray(df.iloc[:, 1:6]).tolist()
+        self.text =  np.asarray(df.iloc[:, 6]).tolist()
+
         #self.targets = df.label.tolist()
         #print(self.tfidf_vector[:5])
 

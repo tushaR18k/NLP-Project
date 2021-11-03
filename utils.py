@@ -5,8 +5,59 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import wordpunct_tokenize
 from nltk.stem import WordNetLemmatizer
+from sklearn import feature_extraction, preprocessing
+
+import pandas as pd
 import re
 import torch
+
+def get_part_of_speech(df):
+    def pos_per_sent(x):
+        return ' '.join([pos for _, pos in nltk.pos_tag(x)])
+    def pos_text_pair_per_sent(x):
+        return [(pos,t) for t, pos in nltk.pos_tag(x)]
+    new_df=pd.DataFrame()
+    new_df['text'] = df['text']
+    new_df['pos']=df['text'].apply(pos_per_sent)
+    new_df['pos_text_pair']=new_df['text'].apply(pos_text_pair_per_sent)
+
+    return new_df
+
+def vectorize(df):
+    c_vectorizer=feature_extraction.text.CountVectorizer(lowercase=False)
+    df = df.join(pd.DataFrame(c_vectorizer.fit_transform(df['pos']).todense(),
+                          columns=c_vectorizer.get_feature_names(),
+                          index=df.index))
+    return c_vectorizer, df
+
+def plot_histogram(pd_series, bins='auto', x_label='Sentence Length Counts', y_label='Frequency', bar_chart=False):
+    # code modified from https://realpython.com/python-histograms/
+    import matplotlib.pyplot as plt
+
+    title = f'{y_label} of {x_label}'
+    print(pd_series.values)
+    if bar_chart:
+        pd_series.plot(kind='bar',color='#607c8e')
+    else:
+        pd_series.plot.hist(grid=True, bins=bins, rwidth=0.9,
+                   color='#607c8e')
+    plt.xlabel('Value')
+    plt.ylabel('Frequency')
+    plt.title(title)
+    plt.grid(axis='y', alpha=0.75)
+    '''
+    n, bins, patches = plt.hist(x=d, bins='auto', color='#0504aa', alpha=0.7, rwidth=0.85)
+    plt.grid(axis='y', alpha=0.75)
+    plt.xlabel('Value')
+    plt.ylabel('Frequency')
+    plt.title(title)
+    plt.text(23, 45, r'$\mu=15, b=3$')
+    maxfreq = n.max()
+    # Set a clean upper y-axis limit.
+    plt.ylim(ymax=np.ceil(maxfreq / 10) * 10 if maxfreq % 10 else maxfreq + 10)
+    '''
+    return plt
+
 def accuracy(output, target, topk=(1,)):
     """Computes the accuracy over the k top predictions for the specified values of k"""
     with torch.no_grad():
