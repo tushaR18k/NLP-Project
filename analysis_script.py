@@ -8,6 +8,8 @@ from collections import Counter, namedtuple
 import os
 from pdb import set_trace as breakpoint
 import spacy
+import json
+
 #from matplotlib.
 class TextDataset:
     def __init__(self, path_to_data, dataset_name):
@@ -27,6 +29,15 @@ class TextDataset:
 
             df['text']=df['Text Transcription'].apply(lambda x : wordpunct_tokenize(x))
             return df
+        elif self.dataset_name == 'coco':
+            with open(self.path_to_data) as f:
+                json_data = json.load(f)
+                text=[datapoint['caption'] for datapoint in json_data['annotations']]
+                df = pd.DataFrame()
+                df['text']=text
+                df['text']=df['text'].apply(lambda x : wordpunct_tokenize(x))
+                return df.sample(10000)
+            
         return None
     
     def get_pos_hist(self, args):
@@ -69,12 +80,15 @@ class TextDataset:
             all_entities.extend(ner)
         obj=namedtuple(typename='test', field_names=['index', 'values'])
         counter_all_entities=zip(*Counter(all_entities).most_common())
+        breakpoint()
         obj.index, obj.values = (next(counter_all_entities), next(counter_all_entities))
         # normalize counts
         total = sum(Counter(all_entities).values(), 0.0)
-        breakpoint()
+        #breakpoint()
         obj.values=[val/total for val in obj.values]
         plt=plot_histogram(obj, x_label='Entities', y_label='Percent Over all Mentions', bar_chart=True)
+        plt.tight_layout()
+#plt.gcf().subplots_adjust(bottom=0.80)
         plt.xticks(rotation = 45) # Rotates X-Axis Ticks by 45-degrees
 
         os.makedirs(os.path.join('visualizations', self.dataset_name), exist_ok=True)

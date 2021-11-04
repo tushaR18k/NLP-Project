@@ -42,8 +42,8 @@ def plot_histogram(pd_series, bins='auto', x_label='Sentence Length Counts', y_l
     else:
         pd_series.plot.hist(grid=True, bins=bins, rwidth=0.9,
                    color='#607c8e')
-    plt.xlabel('Value')
-    plt.ylabel('Frequency')
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
     plt.title(title)
     plt.grid(axis='y', alpha=0.75)
     '''
