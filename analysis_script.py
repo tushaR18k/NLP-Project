@@ -9,7 +9,7 @@ import os
 from pdb import set_trace as breakpoint
 import spacy
 import json
-
+import ast
 #from matplotlib.
 class TextDataset:
     def __init__(self, path_to_data, dataset_name):
@@ -37,6 +37,15 @@ class TextDataset:
                 df['text']=text
                 df['text']=df['text'].apply(lambda x : wordpunct_tokenize(x))
                 return df.sample(10000)
+        elif self.dataset_name == 'fb':
+            with open(self.path_to_data) as f:
+                texts=[]
+                for line in f:
+                    texts.append(ast.literal_eval(line)['text'])
+                df = pd.DataFrame()
+                df['text']=texts
+                df['text']=df['text'].apply(lambda x : wordpunct_tokenize(x))           
+                return df
             
         return None
     
@@ -50,7 +59,7 @@ class TextDataset:
     def get_average_sentence_length(self, args):
         # save histogram under visualizations folder
         self.df['sentence_counts'] = self.df['text'].apply(lambda x : len(x))
-        plt=plot_histogram(self.df['sentence_counts'], bins=self.df['sentence_counts'].max())
+        plt=plot_histogram(self.df['sentence_counts'], bins=list(range(1,300, 10)),x_label='Text Word Length', y_label='Density')
         
         os.makedirs(os.path.join('visualizations', self.dataset_name), exist_ok=True)
         plt.savefig(os.path.join('visualizations', self.dataset_name, 'sentence_count.png'))
@@ -80,7 +89,7 @@ class TextDataset:
             all_entities.extend(ner)
         obj=namedtuple(typename='test', field_names=['index', 'values'])
         counter_all_entities=zip(*Counter(all_entities).most_common())
-        breakpoint()
+        #breakpoint()
         obj.index, obj.values = (next(counter_all_entities), next(counter_all_entities))
         # normalize counts
         total = sum(Counter(all_entities).values(), 0.0)
@@ -110,7 +119,7 @@ if __name__ == "__main__":
     
     # get average sentence length
     print("Average sentence length: ", dataset.get_average_sentence_length(args))
-    
+    exit(1)
     print("Average parts of speech per meme text: ", dataset.mean_pos.sort_values(ascending=False))
     dataset.get_pos_hist(args)
     

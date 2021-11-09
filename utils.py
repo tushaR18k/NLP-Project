@@ -41,7 +41,7 @@ def plot_histogram(pd_series, bins='auto', x_label='Sentence Length Counts', y_l
         plt.bar(pd_series.index[:10], pd_series.values[:10], color='#607c8e') # take first ten
     else:
         pd_series.plot.hist(grid=True, bins=bins, rwidth=0.9,
-                   color='#607c8e')
+                   color='#607c8e', density=True, cumulative=True)
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(title)
