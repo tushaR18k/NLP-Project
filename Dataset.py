@@ -23,8 +23,10 @@ from params import *
 
 
 class MAMIDataset(Dataset):
-    def __init__(self, max_len, max_vocab, transform_apply=False, path_to_dataset='./Data/TRAINING', split='training'):
+    def __init__(self, max_len, max_vocab, transform_apply=False, path_to_dataset='./Data/TRAINING', split='training', transform=None):
         self.path_to_dataset = path_to_dataset
+
+        self.transforms = transform
 
         self.to_tensor = transforms.ToTensor()
         df = data = pd.read_csv(os.path.join(path_to_dataset, f'{split}_split.csv'), sep="\t")
@@ -105,8 +107,9 @@ class MAMIDataset(Dataset):
         try:
             single_image_name = self.image_arr[i]  # TODO: need to edit
             img_as_img = Image.open(os.path.join(self.path_to_dataset, single_image_name))
-            img_as_img = transforms.Resize((112, 112))(img_as_img)
-            img_as_tensor = self.to_tensor(img_as_img)
+            # img_as_img = transforms.Resize((112, 112))(img_as_img)
+            # img_as_tensor = self.to_tensor(img_as_img)
+            img_as_tensor = self.transforms(img_as_img)
             if img_as_tensor.shape[0] == 1:
                 img_as_tensor = einops.repeat(img_as_tensor, 'c h w -> (repeat c) h w', repeat=3)
 
