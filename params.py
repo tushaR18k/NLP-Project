@@ -5,6 +5,6 @@ MAX_VOCAB = 1000 #@param [1000, 5000, 10000, 100000] {allow-input: true}
 
 BATCH_SIZE = 2
 
-MAX_EPOCHS = 100
+MAX_EPOCHS = 3
 
 model_arch = 'log_res'

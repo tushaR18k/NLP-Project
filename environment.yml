@@ -14,6 +14,10 @@ dependencies:
   - jupyter
   - opencv
   - pillow
+<<<<<<< HEAD
+=======
+  - faiss-cpu
+>>>>>>> da5de8aaeb66abdbb2af19c3efed604ac65990ea
   - scikit-learn
   - tqdm
   - regex

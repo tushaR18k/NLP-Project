@@ -59,7 +59,10 @@ class TextDataset:
     def get_average_sentence_length(self, args):
         # save histogram under visualizations folder
         self.df['sentence_counts'] = self.df['text'].apply(lambda x : len(x))
+<<<<<<< HEAD
         self.df_with_pos['sentence_counts']=self.df['sentence_counts']
+=======
+>>>>>>> da5de8aaeb66abdbb2af19c3efed604ac65990ea
         plt=plot_histogram(self.df['sentence_counts'], bins=list(range(1,300, 10)),x_label='Text Word Length', y_label='Density')
         
         os.makedirs(os.path.join('visualizations', self.dataset_name), exist_ok=True)
@@ -120,12 +123,19 @@ if __name__ == "__main__":
     
     # get average sentence length
     print("Average sentence length: ", dataset.get_average_sentence_length(args))
+<<<<<<< HEAD
     dataset.df_with_pos.to_csv(f'results/{args.dataset}.csv')
     exit(1)
 
     print("Average parts of speech per meme text: ", dataset.mean_pos.sort_values(ascending=False))
     dataset.get_pos_hist(args)
 
+=======
+    exit(1)
+    print("Average parts of speech per meme text: ", dataset.mean_pos.sort_values(ascending=False))
+    dataset.get_pos_hist(args)
+    
+>>>>>>> da5de8aaeb66abdbb2af19c3efed604ac65990ea
         #todo add normalization
     np, vp, ent_a = dataset.get_ner_hist(args)
     print("Nouns, Verbs, Entities Counts: \n" )
