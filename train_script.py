@@ -11,7 +11,7 @@ from utils import accuracy
 import pdb
 import os
 
-exp_name='log_res'
+exp_name='log_res_tfidf'
 os.makedirs(f'results/{exp_name}', exist_ok=True)
 
 def train_epoch(dataloader, model, optimizer, scheduler, epoch):
@@ -21,7 +21,7 @@ def train_epoch(dataloader, model, optimizer, scheduler, epoch):
         accuracy_list=[]
         count=1
         for img,seq,bow,tfidf,target,text,img_id in pb:
-            bow=bow.to(device)
+            bow=tfidf.to(device)
             target=target.to(device)
             outputs=model(bow)
             #pdb.set_trace()
