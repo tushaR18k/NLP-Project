@@ -1,4 +1,7 @@
+results/
 _pycache__/
 Data
 .DS_Store
 .ipynb_checkpoints/
+Data/
+_lxmert
