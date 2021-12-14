@@ -17,11 +17,11 @@ from transformers import LxmertForPreTraining
 import importlib 
 import Dataset
 importlib.reload(Dataset)
-from Dataset import ReduceMAMIDataset, collate2, COCODataset
+from Dataset import ReduceMAMIDataset, collate2, COCODataset, ReduceIronicMEMEDataset
 
 device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
 BATCH_SIZE=2
-DATASET_TO_USE='coco'
+DATASET_TO_USE='ironic_meme'
 def showarray(a, fmt="jpeg"):
     a = np.uint8(np.clip(a, 0, 255))
     f = io.BytesIO()
@@ -148,12 +148,19 @@ def save_as_df(dataloader, path):
 from params import *
 from torch.utils.data import DataLoader
 
-
 if DATASET_TO_USE=='coco':
     # enter dataloading code
     train_dataset = COCODataset()
     train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, num_workers=4, collate_fn=train_dataset.collate_fn, shuffle=True)
     save_as_df(train_loader, path='coco_lxmert.csv')
+elif DATASET_TO_USE=='ironic_meme':
+    # train_dataset = ReduceIronicMEMEDataset(MAX_LEN, MAX_VOCAB, path_to_dataset_folder='./Data/Misogynistic-MEME_pt1', path_to_data={'images':'Images', 'csv':'table.csv'}, transform=None)
+    # train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, num_workers=8, collate_fn=collate2, shuffle=True)
+    # save_as_df(train_loader, path='non_masked_df_ironic_meme_lxmert.csv')
+    train_dataset = ReduceIronicMEMEDataset(MAX_LEN, MAX_VOCAB, path_to_dataset_folder='./Data/MASKED_IRONIC_MEME_TEXT_TRAINING', path_to_data={'images':'Images', 'csv':'table.csv'}, transform=None)
+    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, num_workers=8, collate_fn=collate2, shuffle=True)
+    save_as_df(train_loader, path='masked_df_ironic_meme_lxmert.csv')
+
 else:
     num_epochs = 30
 

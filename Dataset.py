@@ -20,10 +20,10 @@ from sklearn.feature_extraction.text import TfidfVectorizer  # TF-IDF
 import einops
 from utils import *
 from params import *
-<<<<<<< HEAD
 import matplotlib.pyplot as plt
 import random
 import pickle
+
 class MAMIDataset(Dataset):
     def __init__(self,max_len,max_vocab,transform_apply=False, path_to_dataset='./Data/TRAINING', split='training', transform=None):
         self.path_to_dataset=path_to_dataset
@@ -35,20 +35,7 @@ class MAMIDataset(Dataset):
         df=data=data[data.apply(lambda x: os.path.exists(os.path.join(path_to_dataset,x['file_name'])), axis=1)]
         self.image_arr = np.asarray(data.iloc[:, 0]).tolist()
         self.text =  np.asarray(data.iloc[:, 6]).tolist()
-=======
 
-
-class MAMIDataset(Dataset):
-    def __init__(self, max_len, max_vocab, transform_apply=False, path_to_dataset='./Data/TRAINING', split='training', transform=None):
-        self.path_to_dataset = path_to_dataset
-
-        self.transforms = transform
-
-        self.to_tensor = transforms.ToTensor()
-        df = data = pd.read_csv(os.path.join(path_to_dataset, f'{split}_split.csv'), sep="\t")
-        self.image_arr = np.asarray(data.iloc[:, 0]).tolist()
-        self.text = np.asarray(data.iloc[:, 6]).tolist()
->>>>>>> da5de8aaeb66abdbb2af19c3efed604ac65990ea
         stop_words = set(stopwords.words('english'))
         lemmatizer = WordNetLemmatizer()
         df['tokens'] = df['Text Transcription'].apply(
@@ -113,14 +100,6 @@ class MAMIDataset(Dataset):
         self.bow_vector = df.bow_vector.tolist()
         self.tfidf_vector = df.tfidf_vector.tolist()
         self.label_arr = np.asarray(df.iloc[:, 1:6]).tolist()
-<<<<<<< HEAD
-        #self.targets = df.label.tolist()
-        #print(self.tfidf_vector[:5])
-=======
-        # self.targets = df.label.tolist()
-        # print(self.tfidf_vector[:5])
->>>>>>> da5de8aaeb66abdbb2af19c3efed604ac65990ea
-
     def __len__(self):
         return len(self.sequences)
         
@@ -129,33 +108,19 @@ class MAMIDataset(Dataset):
         try:
             single_image_name = self.image_arr[i]  # TODO: need to edit
             img_as_img = Image.open(os.path.join(self.path_to_dataset, single_image_name))
-<<<<<<< HEAD
             # img_as_img = transforms.Resize((112,112))(img_as_img)
             # img_as_tensor = self.to_tensor(img_as_img)
             img_as_tensor = self.transforms(img_as_img)
             if img_as_tensor.shape[0] == 1:
                 img_as_tensor=einops.repeat(img_as_tensor, 'c h w -> (repeat c) h w', repeat=3)
             
-=======
-            # img_as_img = transforms.Resize((112, 112))(img_as_img)
-            # img_as_tensor = self.to_tensor(img_as_img)
-            img_as_tensor = self.transforms(img_as_img)
-            if img_as_tensor.shape[0] == 1:
-                img_as_tensor = einops.repeat(img_as_tensor, 'c h w -> (repeat c) h w', repeat=3)
-
->>>>>>> da5de8aaeb66abdbb2af19c3efed604ac65990ea
             return (
                 img_as_tensor,
                 torch.Tensor(self.sequences[i]),
                 torch.Tensor(self.bow_vector[i]),
                 torch.Tensor(self.tfidf_vector[i]),
-<<<<<<< HEAD
                 [self.label_arr[i][0]], #only misogyny 
                 ' '.join(self.text[i].split()[:76]),
-=======
-                [self.label_arr[i][0]],  # only misogyny
-                self.text[i],
->>>>>>> da5de8aaeb66abdbb2af19c3efed604ac65990ea
                 single_image_name
             )
         except Exception as e:
@@ -164,7 +129,6 @@ class MAMIDataset(Dataset):
             exit(1)
 
 
-<<<<<<< HEAD
 class ReduceMAMIDataset(Dataset):
     def __init__(self,max_len,max_vocab,transform_apply=False, path_to_dataset='./Data/TRAINING', split='training', transform=None):
         self.path_to_dataset=path_to_dataset
@@ -187,14 +151,35 @@ class ReduceMAMIDataset(Dataset):
             single_image_name,
             ' '.join(self.text[i].split()[:76])
         )
+    
+class ReduceIronicMEMEDataset(Dataset):
+    def __init__(self,max_len,max_vocab,transform_apply=False, path_to_dataset_folder='./Data/TRAINING', path_to_data={}, transform=None):
+        self.path_to_dataset=path_to_dataset_folder
+        self.path_to_data=path_to_data
+        self.transforms=transform
+
+        self.to_tensor = transforms.ToTensor()
+        df = data = pd.read_csv(os.path.join(path_to_dataset_folder, path_to_data['csv']),sep=";")
+        df=data=data[data.apply(lambda x: os.path.exists(os.path.join(path_to_dataset_folder, path_to_data['images'], 'res_'+str(x['memeID'])+'.jpg')), axis=1)]
+        self.image_arr = df['memeID'].apply(lambda x: 'res_'+str(x)+'.jpg')
+        self.text =  df['text']
+        
+    def __len__(self):
+        return len(self.text)
+    
+    def __getitem__(self, i):
+        single_image_name = self.image_arr[i] #TODO: need to edit
+        return (
+            os.path.join(self.path_to_dataset, self.path_to_data['images'], single_image_name),
+            single_image_name,
+            ' '.join(self.text[i].split()[:76])
+        )
 def collate2(batch):
     img_ids = [item[1] for item in batch]
     img_paths = [item[0] for item in batch]
     text = [item[2] for item in batch]
     return img_ids, img_paths, text
-=======
 
->>>>>>> da5de8aaeb66abdbb2af19c3efed604ac65990ea
 def collate(batch):
     img = torch.stack([item[0] for item in batch], dim=0)
     seq = [item[1] for item in batch]
@@ -204,7 +189,6 @@ def collate(batch):
     text = [item[5] for item in batch]
     img_ids = [item[6] for item in batch]
 
-<<<<<<< HEAD
     return img, text, img_ids
 
 class COCODataset(Dataset):
@@ -228,6 +212,7 @@ class COCODataset(Dataset):
         img_paths=[data[2] for data in batch]
         captions=[data[1] for data in batch]
         return ids, img_paths, captions
-=======
-    return img, seq, bow, tfidf, target, text, img_ids
->>>>>>> da5de8aaeb66abdbb2af19c3efed604ac65990ea
+    
+    
+# train_dataset = ReduceIronicMEMEDataset(MAX_LEN, MAX_VOCAB, path_to_dataset_folder='./Data/MASKED_IRONIC_MEME_TEXT_TRAINING', path_to_data={'images':'Images', 'csv':'table.csv'}, transform=None)
+# breakpoint()
